@@ -1,0 +1,30 @@
+# autotools cruft
+/INSTALL
+/Makefile.in
+/aclocal.m4
+/autom4te.cache/
+/autostuff/
+/configure
+/configure.lineno
+/m4/libtool.m4
+/m4/lt*.m4
+
+# Editor/IDE cruft
+*.kate-swp
+*~
+.*.sw*
+/*.kdev4
+/Makefile.am.user
+
+# Configure/build cruft
+*.[ao]
+*.l[ao]
+.deps/
+.dirstamp
+.libs/
+/Makefile
+/config.*
+/libsigrokflow-*.tar.*
+/libsigrokflow.pc
+/libtool
+stamp-h?
