@@ -20,3 +20,11 @@
 #include <config.h>
 #include <libsigrokflow/libsigrokflow.hpp>
 
+namespace Srf
+{
+
+void init()
+{
+}
+
+}

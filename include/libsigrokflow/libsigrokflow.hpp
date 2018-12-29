@@ -20,4 +20,11 @@
 #ifndef LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 #define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 
+namespace Srf
+{
+
+void init();
+
+}
+
 #endif
