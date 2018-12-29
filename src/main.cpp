@@ -20,11 +20,25 @@
 #include <config.h>
 #include <libsigrokflow/libsigrokflow.hpp>
 
+#include <iostream>
+
 namespace Srf
 {
 
+using namespace std;
+
 void init()
 {
+}
+
+LegacyCaptureDevice::LegacyCaptureDevice(shared_ptr<sigrok::Device> device) :
+	_device(device)
+{
+}
+
+shared_ptr<sigrok::Device> LegacyCaptureDevice::libsigrok_device()
+{
+	return _device;
 }
 
 }

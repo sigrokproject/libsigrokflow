@@ -20,11 +20,54 @@
 #ifndef LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 #define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 
+#include <gstreamermm.h>
+#include <libsigrokcxx/libsigrokcxx.hpp>
+
 namespace Srf
 {
 
+using namespace std;
+
 void init();
 
-}
+class Block
+{
+        /* Config API etc goes here */
+};
 
+class GstBlock :
+        public Gst::Element
+{
+        /* Operations specific to sigrok GStreamer blocks go here. */
+};
+
+class Device :
+        public GstBlock
+{
+        /* Operations specific to hardware devices go here */
+};
+
+class CaptureDevice :
+        public Device
+{
+        /* Operations specific to capture (source) devices go here */
+protected :
+        CaptureDevice();
+};
+
+class LegacyCaptureDevice :
+        public CaptureDevice
+{
+public:
+        /* Construct from libsigrok device object */
+        LegacyCaptureDevice(shared_ptr<sigrok::Device>);
+
+        /* Retrieve libsigrok device object */
+        shared_ptr<sigrok::Device> libsigrok_device();
+private:
+        shared_ptr<sigrok::Device> _device;
+};
+
+
+}
 #endif
