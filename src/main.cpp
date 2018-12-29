@@ -26,19 +26,85 @@ namespace Srf
 {
 
 using namespace std;
+using namespace std::placeholders;
 
 void init()
 {
 }
 
-LegacyCaptureDevice::LegacyCaptureDevice(shared_ptr<sigrok::Device> device) :
-	_device(device)
+auto src_template = Gst::PadTemplate::create("src",
+		Gst::PAD_SRC,
+		Gst::PAD_ALWAYS,
+		Gst::Caps::create_any());
+
+LegacyCaptureDevice::LegacyCaptureDevice(shared_ptr<sigrok::HardwareDevice> device) :
+	_device(device), _src_pad(Gst::Pad::create(src_template))
 {
+	add_pad(_src_pad);
 }
 
-shared_ptr<sigrok::Device> LegacyCaptureDevice::libsigrok_device()
+shared_ptr<sigrok::HardwareDevice> LegacyCaptureDevice::libsigrok_device()
 {
 	return _device;
+}
+
+Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange transition)
+{
+	switch (transition)
+	{
+		case Gst::STATE_CHANGE_READY_TO_PAUSED:
+			return Gst::StateChangeReturn::STATE_CHANGE_NO_PREROLL;
+		case Gst::STATE_CHANGE_PAUSED_TO_PLAYING:
+			_device->open();
+			_device->config_set(sigrok::ConfigKey::LIMIT_SAMPLES,
+					Glib::Variant<int>::create(10));
+			_task = Gst::Task::create(std::bind(&LegacyCaptureDevice::_run, this));
+			_task->set_lock(_mutex);
+			_src_pad->set_active(true);
+			_task->start();
+			return Gst::STATE_CHANGE_SUCCESS;
+		default:
+			return Gst::STATE_CHANGE_SUCCESS;
+	}
+}
+
+void LegacyCaptureDevice::_datafeed_callback(
+	shared_ptr<sigrok::Device> device,
+	shared_ptr<sigrok::Packet> packet)
+{
+	(void) device;
+	switch (packet->type()->id()) {
+		case SR_DF_LOGIC:
+		{
+			auto logic = static_pointer_cast<sigrok::Logic>(packet->payload());
+			auto mem = Gst::Memory::create(
+					Gst::MEMORY_FLAG_READONLY,
+					logic->data_pointer(),
+					logic->data_length(),
+					0,
+					logic->data_length());
+			auto buf = Gst::Buffer::create();
+			buf->append_memory(move(mem));
+			_src_pad->push(move(buf));
+			break;
+		}
+		case SR_DF_END:
+			_session->stop();
+			_src_pad->push_event(Gst::EventEos::create());
+			break;
+		default:
+			break;
+	}
+}
+
+void LegacyCaptureDevice::_run()
+{
+	_session = _device->driver()->parent()->create_session();
+	_session->add_device(_device);
+	_session->add_datafeed_callback(bind(&LegacyCaptureDevice::_datafeed_callback, this, _1, _2));
+	_session->start();
+	_session->run();
+	_task->stop();
 }
 
 }
