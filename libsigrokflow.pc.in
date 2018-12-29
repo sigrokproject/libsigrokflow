@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libsigrokflow
+Description: sigrok flow graph library
+URL: http://www.sigrok.org
+Requires: gstreamermm-1.0 >= 1.8.0
+Version: @SRF_PACKAGE_VERSION@
+Libs: -L${libdir} -lsigrokflow
+Cflags: -I${includedir}
