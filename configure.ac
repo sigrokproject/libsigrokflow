@@ -68,6 +68,8 @@ SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra])
 # Check if the C++ compiler supports the C++11 standard.
 AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 
+SR_ARG_OPT_PKG([gstreamermm], [GSTREAMERMM], , [gstreamermm-1.0 >= 1.8.0])
+
 ##############################
 ##  Finalize configuration  ##
 ##############################
@@ -92,5 +94,8 @@ Compile configuration:
  - C++ compiler flags.............. $CXXFLAGS
  - C++ compiler warnings........... $SRF_WXXFLAGS
  - Linker flags.................... $LDFLAGS
+
+Detected libraries (required):
+ - gstreamermm..................... $sr_gstreamermm_version
 
 _EOF
