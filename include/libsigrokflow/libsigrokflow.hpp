@@ -96,6 +96,45 @@ private:
         void _run();
 };
 
+class LegacyInput :
+        public Gst::Element
+{
+public:
+        /* Create from libsigrok input */
+        static Glib::RefPtr<LegacyInput> create(
+                shared_ptr<sigrok::InputFormat> format,
+                map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
+
+        /* Override start */
+        bool start_vfunc();
+
+        /* Chain function */
+        Gst::FlowReturn chain(const Glib::RefPtr<Gst::Pad> &pad,
+                        const Glib::RefPtr<Gst::Buffer> &buf);
+
+        /* Override stop */
+        bool stop_vfunc();
+
+        /* Gst class init */
+        static void class_init(Gst::ElementClass<LegacyInput> *klass);
+
+        /* Register class with plugin */
+        static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
+
+        /* Construcor used by element factory */
+        explicit LegacyInput(GstElement *gobj);
+private:
+        shared_ptr<sigrok::InputFormat> _libsigrok_input_format;
+        shared_ptr<sigrok::Input> _libsigrok_input;
+        shared_ptr<sigrok::Session> _session;
+        map<string, Glib::VariantBase> _options;
+        Glib::RefPtr<Gst::Pad> _sink_pad;
+        Glib::RefPtr<Gst::Pad> _src_pad;
+
+        void _datafeed_callback(shared_ptr<sigrok::Device> device,
+                        shared_ptr<sigrok::Packet> packet);
+};
+
 class LegacyOutput :
         public Sink
 {

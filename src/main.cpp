@@ -39,6 +39,11 @@ void init()
 			sigc::ptr_fun(&LegacyCaptureDevice::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
+			"sigrok_legacy_input",
+			"Wrapper for inputs using legacy libsigrok APIs",
+			sigc::ptr_fun(&LegacyInput::register_element),
+			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
+	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_output",
 			"Wrapper for outputs using legacy libsigrok APIs",
 			sigc::ptr_fun(&LegacyOutput::register_element),
@@ -163,6 +168,111 @@ void LegacyCaptureDevice::_run()
 	_session->start();
 	_session->run();
 	_task->stop();
+}
+
+void LegacyInput::class_init(Gst::ElementClass<LegacyInput> *klass)
+{
+	klass->set_metadata("sigrok legacy input",
+			"Transform", "Wrapper for inputs using legacy libsigrok APIs",
+			"Martin Ling");
+
+	klass->add_pad_template(Gst::PadTemplate::create(
+			"sink",
+			Gst::PAD_SINK,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any()));
+
+	klass->add_pad_template(Gst::PadTemplate::create(
+			"src",
+			Gst::PAD_SRC,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any()));
+}
+
+bool LegacyInput::register_element(Glib::RefPtr<Gst::Plugin> plugin)
+{
+	Gst::ElementFactory::register_element(plugin, "sigrok_legacy_input",
+			0, Gst::register_mm_type<LegacyInput>(
+				"sigrok_legacy_input"));
+	return true;
+}
+
+LegacyInput::LegacyInput(GstElement *gobj) :
+	Glib::ObjectBase(typeid(LegacyInput)),
+	Gst::Element(gobj)
+{
+	add_pad(_sink_pad = Gst::Pad::create(get_pad_template("sink"), "sink"));
+	add_pad(_src_pad = Gst::Pad::create(get_pad_template("src"), "src"));
+	_sink_pad->set_chain_function(sigc::mem_fun(*this, &LegacyInput::chain));
+}
+
+Glib::RefPtr<LegacyInput> LegacyInput::create(
+	shared_ptr<sigrok::InputFormat> libsigrok_input_format,
+	map<string, Glib::VariantBase> options)
+{
+	auto element = Gst::ElementFactory::create_element("sigrok_legacy_input");
+	if (!element)
+		throw runtime_error("Failed to create element - plugin not registered?");
+	auto input = Glib::RefPtr<LegacyInput>::cast_static(element);
+	input->_libsigrok_input_format = libsigrok_input_format;
+	input->_options = options;
+	return input;
+}
+
+bool LegacyInput::start_vfunc()
+{
+	_libsigrok_input = _libsigrok_input_format->create_input(_options);
+	auto context = _libsigrok_input_format->parent();
+	_session = context->create_session();
+	_session->add_device(_libsigrok_input->device());
+	_session->add_datafeed_callback(bind(&LegacyInput::_datafeed_callback, this, _1, _2));
+	_session->start();
+	return true;
+}
+
+void LegacyInput::_datafeed_callback(
+	shared_ptr<sigrok::Device> device,
+	shared_ptr<sigrok::Packet> packet)
+{
+	(void) device;
+	switch (packet->type()->id()) {
+		case SR_DF_LOGIC:
+		{
+			auto logic = static_pointer_cast<sigrok::Logic>(packet->payload());
+			auto mem = Gst::Memory::create(
+					Gst::MEMORY_FLAG_READONLY,
+					logic->data_pointer(),
+					logic->data_length(),
+					0,
+					logic->data_length());
+			auto buf = Gst::Buffer::create();
+			buf->append_memory(move(mem));
+			_src_pad->push(move(buf));
+			break;
+		}
+		case SR_DF_END:
+			_session->stop();
+			_src_pad->push_event(Gst::EventEos::create());
+			break;
+		default:
+			break;
+	}
+}
+
+Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &,
+                        const Glib::RefPtr<Gst::Buffer> &buf)
+{
+	Gst::MapInfo info;
+	buf->map(info, Gst::MAP_READ);
+	_libsigrok_input->send(info.get_data(), info.get_size());
+	buf->unmap(info);
+	return Gst::FLOW_OK;
+}
+
+bool LegacyInput::stop_vfunc()
+{
+	_libsigrok_input->end();
+	return true;
 }
 
 void LegacyOutput::class_init(Gst::ElementClass<LegacyOutput> *klass)
