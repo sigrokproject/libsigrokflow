@@ -103,9 +103,6 @@ Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange 
 		case Gst::STATE_CHANGE_READY_TO_PAUSED:
 			return Gst::StateChangeReturn::STATE_CHANGE_NO_PREROLL;
 		case Gst::STATE_CHANGE_PAUSED_TO_PLAYING:
-			_libsigrok_device->open();
-			_libsigrok_device->config_set(sigrok::ConfigKey::LIMIT_SAMPLES,
-					Glib::Variant<uint64_t>::create(10));
 			_task = Gst::Task::create(std::bind(&LegacyCaptureDevice::_run, this));
 			_task->set_lock(_mutex);
 			_src_pad->set_active(true);
