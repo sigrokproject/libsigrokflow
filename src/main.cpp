@@ -1,6 +1,7 @@
 /*
  * This file is part of the libsigrokflow project.
  *
+ * Copyright (C) 2018 Martin Ling <martin-sigrok@earth.li>
  * Copyright (C) 2018 Uwe Hermann <uwe@hermann-uwe.de>
  *
  * This program is free software: you can redistribute it and/or modify
