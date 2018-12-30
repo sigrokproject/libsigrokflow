@@ -32,20 +32,25 @@ void init()
 {
 }
 
-auto src_template = Gst::PadTemplate::create("src",
-		Gst::PAD_SRC,
-		Gst::PAD_ALWAYS,
-		Gst::Caps::create_any());
-
-LegacyCaptureDevice::LegacyCaptureDevice(shared_ptr<sigrok::HardwareDevice> device) :
-	_device(device), _src_pad(Gst::Pad::create(src_template))
+Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
+	shared_ptr<sigrok::HardwareDevice> libsigrok_device)
 {
-	add_pad(_src_pad);
+	auto element = Gst::ElementFactory::create_element("sigrok_legacy_capture_device");
+	auto device = Glib::RefPtr<LegacyCaptureDevice>::cast_static(element);
+
+	auto src_template = Gst::PadTemplate::create("src",
+			Gst::PAD_SRC,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any());
+	device->_src_pad = Gst::Pad::create(src_template);
+	device->add_pad(device->_src_pad);
+	device->_libsigrok_device = libsigrok_device;
+	return device;
 }
 
 shared_ptr<sigrok::HardwareDevice> LegacyCaptureDevice::libsigrok_device()
 {
-	return _device;
+	return _libsigrok_device;
 }
 
 Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange transition)
@@ -55,8 +60,8 @@ Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange 
 		case Gst::STATE_CHANGE_READY_TO_PAUSED:
 			return Gst::StateChangeReturn::STATE_CHANGE_NO_PREROLL;
 		case Gst::STATE_CHANGE_PAUSED_TO_PLAYING:
-			_device->open();
-			_device->config_set(sigrok::ConfigKey::LIMIT_SAMPLES,
+			_libsigrok_device->open();
+			_libsigrok_device->config_set(sigrok::ConfigKey::LIMIT_SAMPLES,
 					Glib::Variant<int>::create(10));
 			_task = Gst::Task::create(std::bind(&LegacyCaptureDevice::_run, this));
 			_task->set_lock(_mutex);
@@ -99,8 +104,8 @@ void LegacyCaptureDevice::_datafeed_callback(
 
 void LegacyCaptureDevice::_run()
 {
-	_session = _device->driver()->parent()->create_session();
-	_session->add_device(_device);
+	_session = _libsigrok_device->driver()->parent()->create_session();
+	_session->add_device(_libsigrok_device);
 	_session->add_datafeed_callback(bind(&LegacyCaptureDevice::_datafeed_callback, this, _1, _2));
 	_session->start();
 	_session->run();

@@ -51,16 +51,15 @@ class CaptureDevice :
         public Device
 {
         /* Operations specific to capture (source) devices go here */
-protected :
-        CaptureDevice();
 };
 
 class LegacyCaptureDevice :
         public CaptureDevice
 {
 public:
-        /* Construct from libsigrok device object */
-        LegacyCaptureDevice(shared_ptr<sigrok::HardwareDevice>);
+        /* Create from libsigrok device object */
+        static Glib::RefPtr<LegacyCaptureDevice> create(
+                shared_ptr<sigrok::HardwareDevice> libsigrok_device);
 
         /* Retrieve libsigrok device object */
         shared_ptr<sigrok::HardwareDevice> libsigrok_device();
@@ -68,7 +67,7 @@ public:
         /* Override state change */
         Gst::StateChangeReturn change_state_vfunc(Gst::StateChange transition);
 private:
-        shared_ptr<sigrok::HardwareDevice> _device;
+        shared_ptr<sigrok::HardwareDevice> _libsigrok_device;
         Glib::RefPtr<Gst::Pad> _src_pad;
         Glib::Threads::RecMutex _mutex;
         Glib::RefPtr<Gst::Task> _task;
