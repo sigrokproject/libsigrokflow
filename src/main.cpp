@@ -20,6 +20,8 @@
 #include <config.h>
 #include <libsigrokflow/libsigrokflow.hpp>
 
+#include <libsigrokdecode/libsigrokdecode.h>
+
 #include <iostream>
 
 namespace Srf
@@ -39,6 +41,11 @@ void init()
 			"sigrok_legacy_output",
 			"Wrapper for outputs using legacy libsigrok APIs",
 			sigc::ptr_fun(&LegacyOutput::register_element),
+			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
+	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
+			"sigrok_legacy_decoder",
+			"Wrapper for protocol decoders using legacy libsigrokdecode APIs",
+			sigc::ptr_fun(&LegacyDecoder::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 }
 
@@ -225,6 +232,75 @@ bool LegacyOutput::stop_vfunc()
 	auto end_packet = context->create_end_packet();
 	auto result = _libsigrok_output->receive(end_packet);
 	cout << result;
+	return true;
+}
+
+void LegacyDecoder::class_init(Gst::ElementClass<LegacyDecoder> *klass)
+{
+	klass->set_metadata("sigrok legacy decoder",
+			"Sink", "Wrapper for protocol decoders using legacy libsigrokdecode APIs",
+			"Uwe Hermann");
+
+	klass->add_pad_template(Gst::PadTemplate::create(
+			"sink",
+			Gst::PAD_SINK,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any()));
+}
+
+bool LegacyDecoder::register_element(Glib::RefPtr<Gst::Plugin> plugin)
+{
+	Gst::ElementFactory::register_element(plugin, "sigrok_legacy_decoder",
+			0, Gst::register_mm_type<LegacyDecoder>(
+				"sigrok_legacy_decoder"));
+	return true;
+}
+
+LegacyDecoder::LegacyDecoder(GstBaseSink *gobj) :
+	Glib::ObjectBase(typeid(LegacyDecoder)),
+	Sink(gobj)
+{
+}
+
+Glib::RefPtr<LegacyDecoder>LegacyDecoder::create(
+	struct srd_session *libsigrokdecode_session, uint64_t unitsize)
+{
+	auto element = Gst::ElementFactory::create_element("sigrok_legacy_decoder");
+	if (!element)
+		throw runtime_error("Failed to create element - plugin not registered?");
+	auto decoder = Glib::RefPtr<LegacyDecoder>::cast_static(element);
+	decoder->_session = libsigrokdecode_session;
+	decoder->_unitsize = unitsize;
+	return decoder;
+}
+
+struct srd_session *LegacyDecoder::libsigrokdecode_session()
+{
+	return _session;
+}
+
+Gst::FlowReturn LegacyDecoder::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer)
+{
+	Gst::MapInfo info;
+	buffer->map(info, Gst::MAP_READ);
+	uint64_t num_samples = info.get_size() / _unitsize;
+	srd_session_send(_session, _abs_ss, _abs_ss + num_samples,
+		info.get_data(), info.get_size(), _unitsize);
+	_abs_ss += num_samples;
+	buffer->unmap(info);
+	return Gst::FLOW_OK;
+}
+
+bool LegacyDecoder::start_vfunc()
+{
+	_abs_ss = 0;
+	srd_session_start(_session);
+	return true;
+}
+
+bool LegacyDecoder::stop_vfunc()
+{
+	srd_session_terminate_reset(_session);
 	return true;
 }
 
