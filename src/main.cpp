@@ -36,6 +36,8 @@ Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
 	shared_ptr<sigrok::HardwareDevice> libsigrok_device)
 {
 	auto element = Gst::ElementFactory::create_element("sigrok_legacy_capture_device");
+	if (!element)
+		throw runtime_error("Failed to create element - plugin not registered?");
 	auto device = Glib::RefPtr<LegacyCaptureDevice>::cast_static(element);
 
 	auto src_template = Gst::PadTemplate::create("src",
