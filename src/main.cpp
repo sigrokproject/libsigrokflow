@@ -185,26 +185,32 @@ LegacyOutput::LegacyOutput(GstBaseSink *gobj) :
 }
 
 Glib::RefPtr<LegacyOutput>LegacyOutput::create(
-	shared_ptr<sigrok::Output> libsigrok_output)
+	shared_ptr<sigrok::OutputFormat> libsigrok_output_format,
+	shared_ptr<sigrok::Device> libsigrok_device,
+	map<string, Glib::VariantBase> options)
 {
 	auto element = Gst::ElementFactory::create_element("sigrok_legacy_output");
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto output = Glib::RefPtr<LegacyOutput>::cast_static(element);
-	output->_libsigrok_output = libsigrok_output;
+	output->_libsigrok_output_format = libsigrok_output_format;
+	output->_libsigrok_device = libsigrok_device;
+	output->_options = options;
 	return output;
 }
 
-shared_ptr<sigrok::Output> LegacyOutput::libsigrok_output()
+bool LegacyOutput::start_vfunc()
 {
-	return _libsigrok_output;
+	_libsigrok_output = _libsigrok_output_format->create_output(
+			_libsigrok_device, _options);
+	return true;
 }
 
 Gst::FlowReturn LegacyOutput::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer)
 {
 	Gst::MapInfo info;
 	buffer->map(info, Gst::MAP_READ);
-	auto context = _libsigrok_output->format()->parent();
+	auto context = _libsigrok_output_format->parent();
 	auto packet = context->create_logic_packet(
 			info.get_data(), info.get_size(), 2);
 	auto result = _libsigrok_output->receive(packet);
@@ -215,7 +221,7 @@ Gst::FlowReturn LegacyOutput::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buff
 
 bool LegacyOutput::stop_vfunc()
 {
-	auto context = _libsigrok_output->format()->parent();
+	auto context = _libsigrok_output_format->parent();
 	auto end_packet = context->create_end_packet();
 	auto result = _libsigrok_output->receive(end_packet);
 	cout << result;

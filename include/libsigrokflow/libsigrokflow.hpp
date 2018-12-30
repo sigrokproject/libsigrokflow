@@ -100,10 +100,12 @@ class LegacyOutput :
 public:
         /* Create from libsigrok output object */
         static Glib::RefPtr<LegacyOutput> create(
-                shared_ptr<sigrok::Output> libsigrok_output);
+                shared_ptr<sigrok::OutputFormat> libsigrok_output_format,
+                shared_ptr<sigrok::Device> libsigrok_device,
+                map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
-        /* Retrieve libsigrok output object */
-        shared_ptr<sigrok::Output> libsigrok_output();
+        /* Override start */
+        bool start_vfunc();
 
         /* Override render */
         Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer);
@@ -120,8 +122,10 @@ public:
         /* Constructor used by element factory */
         explicit LegacyOutput(GstBaseSink *gobj);
 private:
+        shared_ptr<sigrok::OutputFormat> _libsigrok_output_format;
+        shared_ptr<sigrok::Device> _libsigrok_device;
         shared_ptr<sigrok::Output> _libsigrok_output;
-        Glib::RefPtr<Gst::Pad> _sink_pad;
+        map<string, Glib::VariantBase> _options;
 };
 
 
