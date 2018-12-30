@@ -34,7 +34,7 @@ void init()
 			"sigrok_legacy_capture_device",
 			"Wrapper for capture devices using legacy libsigrok APIs",
 			sigc::ptr_fun(&LegacyCaptureDevice::register_element),
-			"0.01", "GPLv3+", "sigrok", "libsigrokflow", "http://sigrok.org");
+			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 }
 
 GstBlock::GstBlock(GstElement *gobj) :
