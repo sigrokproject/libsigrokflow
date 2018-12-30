@@ -37,6 +37,21 @@ void init()
 			"0.01", "GPLv3+", "sigrok", "libsigrokflow", "http://sigrok.org");
 }
 
+GstBlock::GstBlock(GstElement *gobj) :
+	Gst::Element(gobj)
+{
+}
+
+Device::Device(GstElement *gobj) :
+	GstBlock(gobj)
+{
+}
+
+CaptureDevice::CaptureDevice(GstElement *gobj) :
+	Device(gobj)
+{
+}
+
 void LegacyCaptureDevice::class_init(Gst::ElementClass<LegacyCaptureDevice> *klass)
 {
 	klass->set_metadata("sigrok legacy capture device",
