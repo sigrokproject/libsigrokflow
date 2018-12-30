@@ -39,18 +39,24 @@ class GstBlock :
         public Gst::Element
 {
         /* Operations specific to sigrok GStreamer blocks go here. */
+protected:
+        explicit GstBlock(GstElement *gobj);
 };
 
 class Device :
         public GstBlock
 {
         /* Operations specific to hardware devices go here */
+protected:
+        explicit Device(GstElement *gobj);
 };
 
 class CaptureDevice :
         public Device
 {
         /* Operations specific to capture (source) devices go here */
+protected:
+        explicit CaptureDevice(GstElement *gobj);
 };
 
 class LegacyCaptureDevice :
@@ -66,6 +72,15 @@ public:
 
         /* Override state change */
         Gst::StateChangeReturn change_state_vfunc(Gst::StateChange transition);
+
+        /* Gst class init */
+        static void class_init(Gst::ElementClass<LegacyCaptureDevice> *klass);
+
+        /* Register class with plugin */
+        static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
+
+        /* Construcor used by element factory */
+        explicit LegacyCaptureDevice(GstElement *gobj);
 private:
         shared_ptr<sigrok::HardwareDevice> _libsigrok_device;
         Glib::RefPtr<Gst::Pad> _src_pad;

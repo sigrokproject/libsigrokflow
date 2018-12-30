@@ -30,6 +30,39 @@ using namespace std::placeholders;
 
 void init()
 {
+	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
+			"sigrok_legacy_capture_device",
+			"Wrapper for capture devices using legacy libsigrok APIs",
+			sigc::ptr_fun(&LegacyCaptureDevice::register_element),
+			"0.01", "GPLv3+", "sigrok", "libsigrokflow", "http://sigrok.org");
+}
+
+void LegacyCaptureDevice::class_init(Gst::ElementClass<LegacyCaptureDevice> *klass)
+{
+	klass->set_metadata("sigrok legacy capture device",
+			"Source", "Wrapper for capture devices using legacy libsigrok APIs",
+			"Martin Ling");
+
+	klass->add_pad_template(Gst::PadTemplate::create(
+			"src",
+			Gst::PAD_SRC,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any()));
+}
+
+bool LegacyCaptureDevice::register_element(Glib::RefPtr<Gst::Plugin> plugin)
+{
+	Gst::ElementFactory::register_element(plugin, "sigrok_legacy_capture_device",
+			0, Gst::register_mm_type<LegacyCaptureDevice>(
+				"sigrok_legacy_capture_device"));
+	return true;
+}
+
+LegacyCaptureDevice::LegacyCaptureDevice(GstElement *gobj) :
+	Glib::ObjectBase(typeid(LegacyCaptureDevice)),
+	CaptureDevice(gobj)
+{
+	add_pad(_src_pad = Gst::Pad::create(get_pad_template("src"), "src"));
 }
 
 Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
@@ -39,13 +72,6 @@ Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto device = Glib::RefPtr<LegacyCaptureDevice>::cast_static(element);
-
-	auto src_template = Gst::PadTemplate::create("src",
-			Gst::PAD_SRC,
-			Gst::PAD_ALWAYS,
-			Gst::Caps::create_any());
-	device->_src_pad = Gst::Pad::create(src_template);
-	device->add_pad(device->_src_pad);
 	device->_libsigrok_device = libsigrok_device;
 	return device;
 }
