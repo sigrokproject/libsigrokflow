@@ -182,7 +182,6 @@ LegacyOutput::LegacyOutput(GstBaseSink *gobj) :
 	Glib::ObjectBase(typeid(LegacyOutput)),
 	Sink(gobj)
 {
-	add_pad(_sink_pad = Gst::Pad::create(get_pad_template("sink"), "sink"));
 }
 
 Glib::RefPtr<LegacyOutput>LegacyOutput::create(
