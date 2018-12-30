@@ -21,6 +21,7 @@
 #define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 
 #include <gstreamermm.h>
+#include <gstreamermm/private/element_p.h>
 #include <libsigrokcxx/libsigrokcxx.hpp>
 
 namespace Srf
