@@ -35,15 +35,20 @@ void init()
 			"Wrapper for capture devices using legacy libsigrok APIs",
 			sigc::ptr_fun(&LegacyCaptureDevice::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
+	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
+			"sigrok_legacy_output",
+			"Wrapper for outputs using legacy libsigrok APIs",
+			sigc::ptr_fun(&LegacyOutput::register_element),
+			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 }
 
-GstBlock::GstBlock(GstElement *gobj) :
-	Gst::Element(gobj)
+Sink::Sink(GstBaseSink *gobj) :
+	Gst::BaseSink(gobj)
 {
 }
 
 Device::Device(GstElement *gobj) :
-	GstBlock(gobj)
+	Gst::Element(gobj)
 {
 }
 
@@ -150,6 +155,72 @@ void LegacyCaptureDevice::_run()
 	_session->start();
 	_session->run();
 	_task->stop();
+}
+
+void LegacyOutput::class_init(Gst::ElementClass<LegacyOutput> *klass)
+{
+	klass->set_metadata("sigrok legacy output",
+			"Sink", "Wrapper for outputs using legacy libsigrok APIs",
+			"Martin Ling");
+
+	klass->add_pad_template(Gst::PadTemplate::create(
+			"sink",
+			Gst::PAD_SINK,
+			Gst::PAD_ALWAYS,
+			Gst::Caps::create_any()));
+}
+
+bool LegacyOutput::register_element(Glib::RefPtr<Gst::Plugin> plugin)
+{
+	Gst::ElementFactory::register_element(plugin, "sigrok_legacy_output",
+			0, Gst::register_mm_type<LegacyOutput>(
+				"sigrok_legacy_output"));
+	return true;
+}
+
+LegacyOutput::LegacyOutput(GstBaseSink *gobj) :
+	Glib::ObjectBase(typeid(LegacyOutput)),
+	Sink(gobj)
+{
+	add_pad(_sink_pad = Gst::Pad::create(get_pad_template("sink"), "sink"));
+}
+
+Glib::RefPtr<LegacyOutput>LegacyOutput::create(
+	shared_ptr<sigrok::Output> libsigrok_output)
+{
+	auto element = Gst::ElementFactory::create_element("sigrok_legacy_output");
+	if (!element)
+		throw runtime_error("Failed to create element - plugin not registered?");
+	auto output = Glib::RefPtr<LegacyOutput>::cast_static(element);
+	output->_libsigrok_output = libsigrok_output;
+	return output;
+}
+
+shared_ptr<sigrok::Output> LegacyOutput::libsigrok_output()
+{
+	return _libsigrok_output;
+}
+
+Gst::FlowReturn LegacyOutput::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer)
+{
+	Gst::MapInfo info;
+	buffer->map(info, Gst::MAP_READ);
+	auto context = _libsigrok_output->format()->parent();
+	auto packet = context->create_logic_packet(
+			info.get_data(), info.get_size(), 2);
+	auto result = _libsigrok_output->receive(packet);
+	cout << result;
+	buffer->unmap(info);
+	return Gst::FLOW_OK;
+}
+
+bool LegacyOutput::stop_vfunc()
+{
+	auto context = _libsigrok_output->format()->parent();
+	auto end_packet = context->create_end_packet();
+	auto result = _libsigrok_output->receive(end_packet);
+	cout << result;
+	return true;
 }
 
 }

@@ -22,6 +22,7 @@
 
 #include <gstreamermm.h>
 #include <gstreamermm/private/element_p.h>
+#include <gstreamermm/private/basesink_p.h>
 #include <libsigrokcxx/libsigrokcxx.hpp>
 
 namespace Srf
@@ -36,16 +37,15 @@ class Block
         /* Config API etc goes here */
 };
 
-class GstBlock :
-        public Gst::Element
+class Sink :
+        public Gst::BaseSink
 {
-        /* Operations specific to sigrok GStreamer blocks go here. */
 protected:
-        explicit GstBlock(GstElement *gobj);
+        explicit Sink(GstBaseSink *gobj);
 };
 
 class Device :
-        public GstBlock
+        public Gst::Element
 {
         /* Operations specific to hardware devices go here */
 protected:
@@ -92,6 +92,36 @@ private:
         void _datafeed_callback(shared_ptr<sigrok::Device> device,
                         shared_ptr<sigrok::Packet> packet);
         void _run();
+};
+
+class LegacyOutput :
+        public Sink
+{
+public:
+        /* Create from libsigrok output object */
+        static Glib::RefPtr<LegacyOutput> create(
+                shared_ptr<sigrok::Output> libsigrok_output);
+
+        /* Retrieve libsigrok output object */
+        shared_ptr<sigrok::Output> libsigrok_output();
+
+        /* Override render */
+        Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer);
+
+        /* Override stop */
+        bool stop_vfunc();
+
+        /* Gst class init */
+        static void class_init(Gst::ElementClass<LegacyOutput> *klass);
+
+        /* Register class with plugin */
+        static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
+
+        /* Constructor used by element factory */
+        explicit LegacyOutput(GstBaseSink *gobj);
+private:
+        shared_ptr<sigrok::Output> _libsigrok_output;
+        Glib::RefPtr<Gst::Pad> _sink_pad;
 };
 
 
