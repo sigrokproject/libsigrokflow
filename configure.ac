@@ -74,7 +74,7 @@ SR_ARG_OPT_PKG([libsigrokcxx], [LIBSIGROKCXX], , [libsigrokcxx >= 0.5.1])
 SR_ARG_OPT_PKG([libsigrokdecode], [LIBSIGROKDECODE], , [libsigrokdecode >= 0.5.1])
 
 AC_LANG([C++])
-SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra])
+SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra -Wformat-security])
 
 # Check if the C++ compiler supports the C++11 standard.
 AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
