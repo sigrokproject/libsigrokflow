@@ -65,6 +65,9 @@ void init()
 
 void deinit()
 {
+	if (!srf_initialized_)
+		throw runtime_error("libsigrokflow is not initialized");
+		
 	srf_initialized_ = false;
 }
 
