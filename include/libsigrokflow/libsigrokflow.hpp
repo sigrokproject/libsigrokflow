@@ -42,6 +42,8 @@ using namespace std;
 
 void init();
 
+void deinit();
+
 class Block
 {
         /* Config API etc goes here */

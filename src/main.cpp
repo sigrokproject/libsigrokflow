@@ -28,11 +28,11 @@ namespace Srf
 using namespace std;
 using namespace std::placeholders;
 
+static bool srf_initialized_ = false;
+
 void init()
 {
-	static bool srf_initialized = false;
-
-	if (srf_initialized)
+	if (srf_initialized_)
 		throw runtime_error("libsigrokflow is already initialized");
 
 #ifdef HAVE_LIBSIGROKCXX
@@ -60,7 +60,12 @@ void init()
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 #endif
 
-	srf_initialized = true;
+	srf_initialized_ = true;
+}
+
+void deinit()
+{
+	srf_initialized_ = false;
 }
 
 Sink::Sink(GstBaseSink *gobj) :
