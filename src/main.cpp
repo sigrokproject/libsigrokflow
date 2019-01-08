@@ -30,6 +30,11 @@ using namespace std::placeholders;
 
 void init()
 {
+	static bool srf_initialized = false;
+
+	if (srf_initialized)
+		throw runtime_error("libsigrokflow is already initialized");
+
 #ifdef HAVE_LIBSIGROKCXX
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_capture_device",
@@ -54,6 +59,8 @@ void init()
 			sigc::ptr_fun(&LegacyDecoder::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 #endif
+
+	srf_initialized = true;
 }
 
 Sink::Sink(GstBaseSink *gobj) :
