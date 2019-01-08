@@ -26,6 +26,10 @@ TEST_CASE("init/deinit", "[init]")
 
 	SECTION("Srf::init() after successful Gst::init() should not throw") {
 		CHECK_NOTHROW(Srf::init());
+		SECTION("Multiple Srf::init() calls should throw") {
+			for (int i = 0; i < 10; ++i)
+				CHECK_THROWS(Srf::init());
+		}
 	}
 
 	REQUIRE_NOTHROW(Gst::deinit());
