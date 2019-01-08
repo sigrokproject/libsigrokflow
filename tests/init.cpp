@@ -29,6 +29,10 @@ TEST_CASE("init/deinit", "[init]")
 		SECTION("Multiple Srf::init() calls should throw") {
 			for (int i = 0; i < 10; ++i)
 				CHECK_THROWS(Srf::init());
+			CHECK_NOTHROW(Srf::deinit());
+		}
+		SECTION("Srf::deinit() should not throw") {
+			CHECK_NOTHROW(Srf::deinit());
 		}
 	}
 
