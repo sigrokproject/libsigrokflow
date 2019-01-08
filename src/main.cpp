@@ -33,6 +33,7 @@ using namespace std::placeholders;
 
 void init()
 {
+#ifdef HAVE_LIBSIGROKCXX
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_capture_device",
 			"Wrapper for capture devices using legacy libsigrok APIs",
@@ -48,6 +49,7 @@ void init()
 			"Wrapper for outputs using legacy libsigrok APIs",
 			sigc::ptr_fun(&LegacyOutput::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
+#endif
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_decoder",
 			"Wrapper for protocol decoders using legacy libsigrokdecode APIs",
@@ -70,6 +72,7 @@ CaptureDevice::CaptureDevice(GstElement *gobj) :
 {
 }
 
+#ifdef HAVE_LIBSIGROKCXX
 void LegacyCaptureDevice::class_init(Gst::ElementClass<LegacyCaptureDevice> *klass)
 {
 	klass->set_metadata("sigrok legacy capture device",
@@ -345,6 +348,7 @@ bool LegacyOutput::stop_vfunc()
 	cout << result;
 	return true;
 }
+#endif
 
 void LegacyDecoder::class_init(Gst::ElementClass<LegacyDecoder> *klass)
 {

@@ -24,7 +24,9 @@
 #include <gstreamermm.h>
 #include <gstreamermm/private/element_p.h>
 #include <gstreamermm/private/basesink_p.h>
+#ifdef HAVE_LIBSIGROKCXX
 #include <libsigrokcxx/libsigrokcxx.hpp>
+#endif
 #include <libsigrokdecode/libsigrokdecode.h>
 
 namespace Srf
@@ -62,6 +64,7 @@ protected:
         explicit CaptureDevice(GstElement *gobj);
 };
 
+#ifdef HAVE_LIBSIGROKCXX
 class LegacyCaptureDevice :
         public CaptureDevice
 {
@@ -168,6 +171,7 @@ private:
         shared_ptr<sigrok::Output> _libsigrok_output;
         map<string, Glib::VariantBase> _options;
 };
+#endif
 
 class LegacyDecoder :
         public Sink

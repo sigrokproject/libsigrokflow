@@ -62,6 +62,16 @@ SR_LIB_VERSION_SET([SRF_LIB_VERSION], [0:0:0])
 # We require at least 0.22, as "Requires.private" behaviour changed there.
 PKG_PROG_PKG_CONFIG([0.22])
 
+# Keep track of all checked modules so we can list them at the end.
+SR_PKG_CHECK_SUMMARY([srf_pkglibs_summary])
+
+# Collect the pkg-config module names of all dependencies in SRF_PKGLIBS.
+# These are used to derive the compiler flags and for the "Requires.private"
+# field in the generated libsigrokflow.pc file.
+SR_VAR_OPT_PKG([SRF_PKGLIBS], [srf_deps_avail])
+
+SR_ARG_OPT_PKG([libsigrokcxx], [LIBSIGROKCXX], , [libsigrokcxx >= 0.5.1])
+
 AC_LANG([C++])
 SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra])
 
@@ -105,5 +115,8 @@ Compile configuration:
 
 Detected libraries (required):
  - gstreamermm >= 1.8.0 ........... $srf_gstreamermm_version
+
+Detected libraries (optional):
+$srf_pkglibs_summary
 
 _EOF
