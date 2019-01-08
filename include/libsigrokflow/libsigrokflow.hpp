@@ -21,6 +21,10 @@
 #ifndef LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 #define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 
+/* Temporary workaround, will be dropped later. */
+#define HAVE_LIBSIGROKCXX 1
+#define HAVE_LIBSIGROKDECODE 1
+
 #include <gstreamermm.h>
 #include <gstreamermm/private/element_p.h>
 #include <gstreamermm/private/basesink_p.h>
