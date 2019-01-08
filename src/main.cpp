@@ -19,11 +19,8 @@
  */
 
 #include <config.h>
-#include <libsigrokflow/libsigrokflow.hpp>
-
-#include <libsigrokdecode/libsigrokdecode.h>
-
 #include <iostream>
+#include <libsigrokflow/libsigrokflow.hpp>
 
 namespace Srf
 {
@@ -50,11 +47,13 @@ void init()
 			sigc::ptr_fun(&LegacyOutput::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
 #endif
+#ifdef HAVE_LIBSIGROKDECODE
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_decoder",
 			"Wrapper for protocol decoders using legacy libsigrokdecode APIs",
 			sigc::ptr_fun(&LegacyDecoder::register_element),
 			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
+#endif
 }
 
 Sink::Sink(GstBaseSink *gobj) :
@@ -350,6 +349,7 @@ bool LegacyOutput::stop_vfunc()
 }
 #endif
 
+#ifdef HAVE_LIBSIGROKDECODE
 void LegacyDecoder::class_init(Gst::ElementClass<LegacyDecoder> *klass)
 {
 	klass->set_metadata("sigrok legacy decoder",
@@ -418,5 +418,6 @@ bool LegacyDecoder::stop_vfunc()
 	srd_session_terminate_reset(_session);
 	return true;
 }
+#endif
 
 }

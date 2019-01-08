@@ -27,7 +27,9 @@
 #ifdef HAVE_LIBSIGROKCXX
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #endif
+#ifdef HAVE_LIBSIGROKDECODE
 #include <libsigrokdecode/libsigrokdecode.h>
+#endif
 
 namespace Srf
 {
@@ -173,6 +175,7 @@ private:
 };
 #endif
 
+#ifdef HAVE_LIBSIGROKDECODE
 class LegacyDecoder :
         public Sink
 {
@@ -205,6 +208,7 @@ private:
         uint64_t _abs_ss;
         uint64_t _unitsize;
 };
+#endif
 
 }
 #endif

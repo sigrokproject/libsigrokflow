@@ -71,6 +71,7 @@ SR_PKG_CHECK_SUMMARY([srf_pkglibs_summary])
 SR_VAR_OPT_PKG([SRF_PKGLIBS], [srf_deps_avail])
 
 SR_ARG_OPT_PKG([libsigrokcxx], [LIBSIGROKCXX], , [libsigrokcxx >= 0.5.1])
+SR_ARG_OPT_PKG([libsigrokdecode], [LIBSIGROKDECODE], , [libsigrokdecode >= 0.5.1])
 
 AC_LANG([C++])
 SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra])
