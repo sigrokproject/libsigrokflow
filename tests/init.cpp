@@ -34,6 +34,11 @@ TEST_CASE("init/deinit", "[init]")
 		SECTION("Srf::deinit() should not throw") {
 			CHECK_NOTHROW(Srf::deinit());
 		}
+		SECTION("Multiple Srf::deinit() calls should throw") {
+			CHECK_NOTHROW(Srf::deinit());
+			for (int i = 0; i < 10; ++i)
+				CHECK_THROWS(Srf::deinit());
+		}
 	}
 
 	REQUIRE_NOTHROW(Gst::deinit());
