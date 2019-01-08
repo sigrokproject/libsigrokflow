@@ -21,7 +21,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_LIBTOOLFLAGS = --silent
 GNUMAKEFLAGS = --no-print-directory
 
-AM_CPPFLAGS = -Iinclude -I$(srcdir)/include -I$(srcdir)/src -I.
+AM_CPPFLAGS = -Iinclude -I$(srcdir)/include -I$(srcdir)/src -I$(srcdir)/tests -I.
 
 AM_CXXFLAGS = $(SRF_WXXFLAGS) $(LIBSIGROKFLOW_CFLAGS)
 
@@ -39,6 +39,15 @@ library_include_HEADERS = \
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libsigrokflow.pc
+
+TESTS = tests/main
+check_PROGRAMS = tests/main
+
+tests_main_SOURCES = \
+	include/libsigrokflow/libsigrokflow.hpp \
+	tests/main.cpp
+
+tests_main_LDADD = libsigrokflow.la $(LIBSIGROKFLOW_LIBS)
 
 .PHONY: dist-changelog
 
