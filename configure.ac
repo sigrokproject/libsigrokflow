@@ -68,11 +68,19 @@ SR_ARG_ENABLE_WARNINGS([SRF_WXXFLAGS], [-Wall], [-Wall -Wextra])
 # Check if the C++ compiler supports the C++11 standard.
 AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])
 
-SR_ARG_OPT_PKG([gstreamermm], [GSTREAMERMM], , [gstreamermm-1.0 >= 1.8.0])
-
 ##############################
 ##  Finalize configuration  ##
 ##############################
+
+# Add mandatory dependencies to module list.
+SR_APPEND([SRF_PKGLIBS], ['gstreamermm-1.0 >= 1.8.0'])
+AC_SUBST([SRF_PKGLIBS])
+
+# Retrieve the compile and link flags for all modules combined.
+# Also, bail out at this point if any module dependency is not met.
+PKG_CHECK_MODULES([LIBSIGROKFLOW], [$SRF_PKGLIBS])
+
+srf_gstreamermm_version=`$PKG_CONFIG --modversion gstreamermm-1.0 2>&AS_MESSAGE_LOG_FD`
 
 AC_CONFIG_FILES([Makefile libsigrokflow.pc])
 
@@ -96,6 +104,6 @@ Compile configuration:
  - Linker flags.................... $LDFLAGS
 
 Detected libraries (required):
- - gstreamermm..................... $sr_gstreamermm_version
+ - gstreamermm >= 1.8.0 ........... $srf_gstreamermm_version
 
 _EOF

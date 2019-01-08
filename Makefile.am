@@ -23,13 +23,14 @@ GNUMAKEFLAGS = --no-print-directory
 
 AM_CPPFLAGS = -Iinclude -I$(srcdir)/include -I$(srcdir)/src -I.
 
-AM_CXXFLAGS = $(SRF_WXXFLAGS)
+AM_CXXFLAGS = $(SRF_WXXFLAGS) $(LIBSIGROKFLOW_CFLAGS)
 
 lib_LTLIBRARIES = libsigrokflow.la
 
 libsigrokflow_la_SOURCES = \
 	src/main.cpp
 
+libsigrokflow_la_LIBADD = $(LIBSIGROKFLOW_LIBS)
 libsigrokflow_la_LDFLAGS = -version-info $(SRF_LIB_VERSION) -no-undefined
 
 library_includedir = $(includedir)/libsigrokflow
