@@ -55,7 +55,7 @@ tests_main_SOURCES = \
 
 tests_main_LDADD = libsigrokflow.la $(LIBSIGROKFLOW_LIBS)
 
-EXTRA_DIST = Doxyfile
+EXTRA_DIST = Doxyfile contrib/libsigrok_112x112.png
 
 .PHONY: dist-changelog
 
