@@ -85,13 +85,13 @@ bool LegacyInput::start_vfunc()
 	auto context = libsigrok_input_format_->parent();
 	session_ = context->create_session();
 	session_->add_device(libsigrok_input_->device());
-	session_->add_datafeed_callback(bind(&LegacyInput::datafeed_callback_, this, _1, _2));
+	session_->add_datafeed_callback(bind(&LegacyInput::datafeed_callback, this, _1, _2));
 	session_->start();
 
 	return true;
 }
 
-void LegacyInput::datafeed_callback_(
+void LegacyInput::datafeed_callback(
 	shared_ptr<sigrok::Device> device,
 	shared_ptr<sigrok::Packet> packet)
 {

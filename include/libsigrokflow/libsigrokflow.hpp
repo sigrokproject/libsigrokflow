@@ -103,9 +103,9 @@ private:
 	Glib::RefPtr<Gst::Task> task_;
 	shared_ptr<sigrok::Session> session_;
 
-	void datafeed_callback_(shared_ptr<sigrok::Device> device,
+	void datafeed_callback(shared_ptr<sigrok::Device> device,
 			shared_ptr<sigrok::Packet> packet);
-	void run_();
+	void run();
 };
 
 class LegacyInput :
@@ -144,7 +144,7 @@ private:
 	Glib::RefPtr<Gst::Pad> sink_pad_;
 	Glib::RefPtr<Gst::Pad> src_pad_;
 
-	void datafeed_callback_(shared_ptr<sigrok::Device> device,
+	void datafeed_callback(shared_ptr<sigrok::Device> device,
 			shared_ptr<sigrok::Packet> packet);
 };
 

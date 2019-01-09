@@ -80,7 +80,7 @@ Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange 
 	case Gst::STATE_CHANGE_READY_TO_PAUSED:
 		return Gst::StateChangeReturn::STATE_CHANGE_NO_PREROLL;
 	case Gst::STATE_CHANGE_PAUSED_TO_PLAYING:
-		task_ = Gst::Task::create(std::bind(&LegacyCaptureDevice::run_, this));
+		task_ = Gst::Task::create(std::bind(&LegacyCaptureDevice::run, this));
 		task_->set_lock(mutex_);
 		src_pad_->set_active(true);
 		task_->start();
@@ -90,7 +90,7 @@ Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange 
 	}
 }
 
-void LegacyCaptureDevice::datafeed_callback_(
+void LegacyCaptureDevice::datafeed_callback(
 	shared_ptr<sigrok::Device> device,
 	shared_ptr<sigrok::Packet> packet)
 {
@@ -119,11 +119,11 @@ void LegacyCaptureDevice::datafeed_callback_(
 	}
 }
 
-void LegacyCaptureDevice::run_()
+void LegacyCaptureDevice::run()
 {
 	session_ = libsigrok_device_->driver()->parent()->create_session();
 	session_->add_device(libsigrok_device_);
-	session_->add_datafeed_callback(bind(&LegacyCaptureDevice::datafeed_callback_, this, _1, _2));
+	session_->add_datafeed_callback(bind(&LegacyCaptureDevice::datafeed_callback, this, _1, _2));
 	session_->start();
 	session_->run();
 	task_->stop();
