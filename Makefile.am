@@ -55,6 +55,8 @@ tests_main_SOURCES = \
 
 tests_main_LDADD = libsigrokflow.la $(LIBSIGROKFLOW_LIBS)
 
+EXTRA_DIST = Doxyfile
+
 .PHONY: dist-changelog
 
 dist-hook: dist-changelog
