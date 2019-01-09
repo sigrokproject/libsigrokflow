@@ -85,7 +85,7 @@ public:
 	shared_ptr<sigrok::HardwareDevice> libsigrok_device();
 
 	/* Override state change. */
-	Gst::StateChangeReturn change_state_vfunc(Gst::StateChange transition);
+	Gst::StateChangeReturn change_state_vfunc(Gst::StateChange transition) override;
 
 	/* Gst class init. */
 	static void class_init(Gst::ElementClass<LegacyCaptureDevice> *klass);
@@ -117,14 +117,14 @@ public:
 		shared_ptr<sigrok::InputFormat> format,
 		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
-	/* Override start. */
+	/* Start function (not an override). */
 	bool start_vfunc();
 
-	/* Chain function. */
+	/* Chain function (not an override). */
 	Gst::FlowReturn chain(const Glib::RefPtr<Gst::Pad> &pad,
 			const Glib::RefPtr<Gst::Buffer> &buf);
 
-	/* Override stop. */
+	/* Stop function (not an override). */
 	bool stop_vfunc();
 
 	/* Gst class init. */
@@ -159,13 +159,13 @@ public:
 		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
 	/* Override start. */
-	bool start_vfunc();
+	bool start_vfunc() override;
 
 	/* Override render. */
-	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer);
+	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer) override;
 
 	/* Override stop. */
-	bool stop_vfunc();
+	bool stop_vfunc() override;
 
 	/* Gst class init. */
 	static void class_init(Gst::ElementClass<LegacyOutput> *klass);
@@ -196,13 +196,13 @@ public:
 	struct srd_session *libsigrokdecode_session();
 
 	/* Override start. */
-	bool start_vfunc();
+	bool start_vfunc() override;
 
 	/* Override render. */
-	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer);
+	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer) override;
 
 	/* Override stop. */
-	bool stop_vfunc();
+	bool stop_vfunc() override;
 
 	/* Gst class init. */
 	static void class_init(Gst::ElementClass<LegacyDecoder> *klass);
