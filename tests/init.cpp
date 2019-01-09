@@ -22,6 +22,10 @@
 
 TEST_CASE("init/deinit", "[init]")
 {
+	SECTION("Srf::init() before successful Gst::init() should throw") {
+		CHECK_THROWS(Srf::init());
+	}
+
 	REQUIRE_NOTHROW(Gst::init());
 
 	SECTION("Srf::init() after successful Gst::init() should not throw") {
