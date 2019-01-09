@@ -116,7 +116,7 @@ LegacyCaptureDevice::LegacyCaptureDevice(GstElement *gobj) :
 	Glib::ObjectBase(typeid(LegacyCaptureDevice)),
 	CaptureDevice(gobj)
 {
-	add_pad(_src_pad = Gst::Pad::create(get_pad_template("src"), "src"));
+	add_pad(src_pad_ = Gst::Pad::create(get_pad_template("src"), "src"));
 }
 
 Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
@@ -126,14 +126,14 @@ Glib::RefPtr<LegacyCaptureDevice>LegacyCaptureDevice::create(
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto device = Glib::RefPtr<LegacyCaptureDevice>::cast_static(element);
-	device->_libsigrok_device = libsigrok_device;
+	device->libsigrok_device_ = libsigrok_device;
 
 	return device;
 }
 
 shared_ptr<sigrok::HardwareDevice> LegacyCaptureDevice::libsigrok_device()
 {
-	return _libsigrok_device;
+	return libsigrok_device_;
 }
 
 Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange transition)
@@ -142,17 +142,17 @@ Gst::StateChangeReturn LegacyCaptureDevice::change_state_vfunc(Gst::StateChange 
 	case Gst::STATE_CHANGE_READY_TO_PAUSED:
 		return Gst::StateChangeReturn::STATE_CHANGE_NO_PREROLL;
 	case Gst::STATE_CHANGE_PAUSED_TO_PLAYING:
-		_task = Gst::Task::create(std::bind(&LegacyCaptureDevice::_run, this));
-		_task->set_lock(_mutex);
-		_src_pad->set_active(true);
-		_task->start();
+		task_ = Gst::Task::create(std::bind(&LegacyCaptureDevice::run_, this));
+		task_->set_lock(mutex_);
+		src_pad_->set_active(true);
+		task_->start();
 		return Gst::STATE_CHANGE_SUCCESS;
 	default:
 		return Gst::STATE_CHANGE_SUCCESS;
 	}
 }
 
-void LegacyCaptureDevice::_datafeed_callback(
+void LegacyCaptureDevice::datafeed_callback_(
 	shared_ptr<sigrok::Device> device,
 	shared_ptr<sigrok::Packet> packet)
 {
@@ -169,26 +169,26 @@ void LegacyCaptureDevice::_datafeed_callback(
 				logic->data_length());
 		auto buf = Gst::Buffer::create();
 		buf->append_memory(move(mem));
-		_src_pad->push(move(buf));
+		src_pad_->push(move(buf));
 		break;
 	}
 	case SR_DF_END:
-		_session->stop();
-		_src_pad->push_event(Gst::EventEos::create());
+		session_->stop();
+		src_pad_->push_event(Gst::EventEos::create());
 		break;
 	default:
 		break;
 	}
 }
 
-void LegacyCaptureDevice::_run()
+void LegacyCaptureDevice::run_()
 {
-	_session = _libsigrok_device->driver()->parent()->create_session();
-	_session->add_device(_libsigrok_device);
-	_session->add_datafeed_callback(bind(&LegacyCaptureDevice::_datafeed_callback, this, _1, _2));
-	_session->start();
-	_session->run();
-	_task->stop();
+	session_ = libsigrok_device_->driver()->parent()->create_session();
+	session_->add_device(libsigrok_device_);
+	session_->add_datafeed_callback(bind(&LegacyCaptureDevice::datafeed_callback_, this, _1, _2));
+	session_->start();
+	session_->run();
+	task_->stop();
 }
 
 void LegacyInput::class_init(Gst::ElementClass<LegacyInput> *klass)
@@ -223,9 +223,9 @@ LegacyInput::LegacyInput(GstElement *gobj) :
 	Glib::ObjectBase(typeid(LegacyInput)),
 	Gst::Element(gobj)
 {
-	add_pad(_sink_pad = Gst::Pad::create(get_pad_template("sink"), "sink"));
-	add_pad(_src_pad = Gst::Pad::create(get_pad_template("src"), "src"));
-	_sink_pad->set_chain_function(sigc::mem_fun(*this, &LegacyInput::chain));
+	add_pad(sink_pad_ = Gst::Pad::create(get_pad_template("sink"), "sink"));
+	add_pad(src_pad_ = Gst::Pad::create(get_pad_template("src"), "src"));
+	sink_pad_->set_chain_function(sigc::mem_fun(*this, &LegacyInput::chain));
 }
 
 Glib::RefPtr<LegacyInput> LegacyInput::create(
@@ -236,25 +236,25 @@ Glib::RefPtr<LegacyInput> LegacyInput::create(
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto input = Glib::RefPtr<LegacyInput>::cast_static(element);
-	input->_libsigrok_input_format = libsigrok_input_format;
-	input->_options = options;
+	input->libsigrok_input_format_ = libsigrok_input_format;
+	input->options_ = options;
 
 	return input;
 }
 
 bool LegacyInput::start_vfunc()
 {
-	_libsigrok_input = _libsigrok_input_format->create_input(_options);
-	auto context = _libsigrok_input_format->parent();
-	_session = context->create_session();
-	_session->add_device(_libsigrok_input->device());
-	_session->add_datafeed_callback(bind(&LegacyInput::_datafeed_callback, this, _1, _2));
-	_session->start();
+	libsigrok_input_ = libsigrok_input_format_->create_input(options_);
+	auto context = libsigrok_input_format_->parent();
+	session_ = context->create_session();
+	session_->add_device(libsigrok_input_->device());
+	session_->add_datafeed_callback(bind(&LegacyInput::datafeed_callback_, this, _1, _2));
+	session_->start();
 
 	return true;
 }
 
-void LegacyInput::_datafeed_callback(
+void LegacyInput::datafeed_callback_(
 	shared_ptr<sigrok::Device> device,
 	shared_ptr<sigrok::Packet> packet)
 {
@@ -271,12 +271,12 @@ void LegacyInput::_datafeed_callback(
 				logic->data_length());
 		auto buf = Gst::Buffer::create();
 		buf->append_memory(move(mem));
-		_src_pad->push(move(buf));
+		src_pad_->push(move(buf));
 		break;
 	}
 	case SR_DF_END:
-		_session->stop();
-		_src_pad->push_event(Gst::EventEos::create());
+		session_->stop();
+		src_pad_->push_event(Gst::EventEos::create());
 		break;
 	default:
 		break;
@@ -288,7 +288,7 @@ Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &,
 {
 	Gst::MapInfo info;
 	buf->map(info, Gst::MAP_READ);
-	_libsigrok_input->send(info.get_data(), info.get_size());
+	libsigrok_input_->send(info.get_data(), info.get_size());
 	buf->unmap(info);
 
 	return Gst::FLOW_OK;
@@ -296,7 +296,7 @@ Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &,
 
 bool LegacyInput::stop_vfunc()
 {
-	_libsigrok_input->end();
+	libsigrok_input_->end();
 
 	return true;
 }
@@ -338,17 +338,17 @@ Glib::RefPtr<LegacyOutput>LegacyOutput::create(
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto output = Glib::RefPtr<LegacyOutput>::cast_static(element);
-	output->_libsigrok_output_format = libsigrok_output_format;
-	output->_libsigrok_device = libsigrok_device;
-	output->_options = options;
+	output->libsigrok_output_format_ = libsigrok_output_format;
+	output->libsigrok_device_ = libsigrok_device;
+	output->options_ = options;
 
 	return output;
 }
 
 bool LegacyOutput::start_vfunc()
 {
-	_libsigrok_output = _libsigrok_output_format->create_output(
-			_libsigrok_device, _options);
+	libsigrok_output_ = libsigrok_output_format_->create_output(
+			libsigrok_device_, options_);
 
 	return true;
 }
@@ -357,10 +357,10 @@ Gst::FlowReturn LegacyOutput::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buff
 {
 	Gst::MapInfo info;
 	buffer->map(info, Gst::MAP_READ);
-	auto context = _libsigrok_output_format->parent();
+	auto context = libsigrok_output_format_->parent();
 	auto packet = context->create_logic_packet(
 			info.get_data(), info.get_size(), 2);
-	auto result = _libsigrok_output->receive(packet);
+	auto result = libsigrok_output_->receive(packet);
 	cout << result;
 	buffer->unmap(info);
 
@@ -369,9 +369,9 @@ Gst::FlowReturn LegacyOutput::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buff
 
 bool LegacyOutput::stop_vfunc()
 {
-	auto context = _libsigrok_output_format->parent();
+	auto context = libsigrok_output_format_->parent();
 	auto end_packet = context->create_end_packet();
-	auto result = _libsigrok_output->receive(end_packet);
+	auto result = libsigrok_output_->receive(end_packet);
 	cout << result;
 
 	return true;
@@ -414,25 +414,25 @@ Glib::RefPtr<LegacyDecoder>LegacyDecoder::create(
 	if (!element)
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto decoder = Glib::RefPtr<LegacyDecoder>::cast_static(element);
-	decoder->_session = libsigrokdecode_session;
-	decoder->_unitsize = unitsize;
+	decoder->session_ = libsigrokdecode_session;
+	decoder->unitsite_ = unitsize;
 
 	return decoder;
 }
 
 struct srd_session *LegacyDecoder::libsigrokdecode_session()
 {
-	return _session;
+	return session_;
 }
 
 Gst::FlowReturn LegacyDecoder::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer)
 {
 	Gst::MapInfo info;
 	buffer->map(info, Gst::MAP_READ);
-	uint64_t num_samples = info.get_size() / _unitsize;
-	srd_session_send(_session, _abs_ss, _abs_ss + num_samples,
-		info.get_data(), info.get_size(), _unitsize);
-	_abs_ss += num_samples;
+	uint64_t num_samples = info.get_size() / unitsite_;
+	srd_session_send(session_, abs_ss_, abs_ss_ + num_samples,
+		info.get_data(), info.get_size(), unitsite_);
+	abs_ss_ += num_samples;
 	buffer->unmap(info);
 
 	return Gst::FLOW_OK;
@@ -440,15 +440,15 @@ Gst::FlowReturn LegacyDecoder::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buf
 
 bool LegacyDecoder::start_vfunc()
 {
-	_abs_ss = 0;
-	srd_session_start(_session);
+	abs_ss_ = 0;
+	srd_session_start(session_);
 
 	return true;
 }
 
 bool LegacyDecoder::stop_vfunc()
 {
-	srd_session_terminate_reset(_session);
+	srd_session_terminate_reset(session_);
 
 	return true;
 }

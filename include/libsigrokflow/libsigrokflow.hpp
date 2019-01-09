@@ -97,15 +97,15 @@ public:
 	explicit LegacyCaptureDevice(GstElement *gobj);
 
 private:
-	shared_ptr<sigrok::HardwareDevice> _libsigrok_device;
-	Glib::RefPtr<Gst::Pad> _src_pad;
-	Glib::Threads::RecMutex _mutex;
-	Glib::RefPtr<Gst::Task> _task;
-	shared_ptr<sigrok::Session> _session;
+	shared_ptr<sigrok::HardwareDevice> libsigrok_device_;
+	Glib::RefPtr<Gst::Pad> src_pad_;
+	Glib::Threads::RecMutex mutex_;
+	Glib::RefPtr<Gst::Task> task_;
+	shared_ptr<sigrok::Session> session_;
 
-	void _datafeed_callback(shared_ptr<sigrok::Device> device,
+	void datafeed_callback_(shared_ptr<sigrok::Device> device,
 			shared_ptr<sigrok::Packet> packet);
-	void _run();
+	void run_();
 };
 
 class LegacyInput :
@@ -137,14 +137,14 @@ public:
 	explicit LegacyInput(GstElement *gobj);
 
 private:
-	shared_ptr<sigrok::InputFormat> _libsigrok_input_format;
-	shared_ptr<sigrok::Input> _libsigrok_input;
-	shared_ptr<sigrok::Session> _session;
-	map<string, Glib::VariantBase> _options;
-	Glib::RefPtr<Gst::Pad> _sink_pad;
-	Glib::RefPtr<Gst::Pad> _src_pad;
+	shared_ptr<sigrok::InputFormat> libsigrok_input_format_;
+	shared_ptr<sigrok::Input> libsigrok_input_;
+	shared_ptr<sigrok::Session> session_;
+	map<string, Glib::VariantBase> options_;
+	Glib::RefPtr<Gst::Pad> sink_pad_;
+	Glib::RefPtr<Gst::Pad> src_pad_;
 
-	void _datafeed_callback(shared_ptr<sigrok::Device> device,
+	void datafeed_callback_(shared_ptr<sigrok::Device> device,
 			shared_ptr<sigrok::Packet> packet);
 };
 
@@ -159,7 +159,7 @@ public:
 		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
 	/* Override start. */
-	bool start_vfunc().;
+	bool start_vfunc();
 
 	/* Override render. */
 	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer);
@@ -177,10 +177,10 @@ public:
 	explicit LegacyOutput(GstBaseSink *gobj);
 
 private:
-	shared_ptr<sigrok::OutputFormat> _libsigrok_output_format;
-	shared_ptr<sigrok::Device> _libsigrok_device;
-	shared_ptr<sigrok::Output> _libsigrok_output;
-	map<string, Glib::VariantBase> _options;
+	shared_ptr<sigrok::OutputFormat> libsigrok_output_format_;
+	shared_ptr<sigrok::Device> libsigrok_device_;
+	shared_ptr<sigrok::Output> libsigrok_output_;
+	map<string, Glib::VariantBase> options_;
 };
 #endif
 
@@ -214,9 +214,9 @@ public:
 	explicit LegacyDecoder(GstBaseSink *gobj);
 
 private:
-	struct srd_session *_session;
-	uint64_t _abs_ss;
-	uint64_t _unitsize;
+	struct srd_session *session_;
+	uint64_t abs_ss_;
+	uint64_t unitsite_;
 };
 #endif
 
