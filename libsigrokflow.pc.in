@@ -5,7 +5,7 @@ includedir=@includedir@
 
 Name: libsigrokflow
 Description: sigrok flow graph library
-URL: http://www.sigrok.org
+URL: https://www.sigrok.org
 Requires: gstreamermm-1.0 >= 1.8.0
 Requires.private: @SRF_PKGLIBS@
 Version: @SRF_PACKAGE_VERSION@

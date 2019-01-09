@@ -22,7 +22,7 @@ AC_PREREQ([2.63])
 
 AC_INIT([libsigrokflow], [0.1.0],
 	[sigrok-devel@lists.sourceforge.net],
-	[libsigrokflow], [http://www.sigrok.org])
+	[libsigrokflow], [https://www.sigrok.org])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([autostuff])
 AC_CONFIG_HEADERS([config.h])
