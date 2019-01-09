@@ -35,6 +35,9 @@ void init()
 	if (srf_initialized_)
 		throw runtime_error("libsigrokflow is already initialized");
 
+	if (!Gst::is_initialized())
+		throw runtime_error("Gst::init() has not run yet");
+
 #ifdef HAVE_LIBSIGROKCXX
 	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
 			"sigrok_legacy_capture_device",
