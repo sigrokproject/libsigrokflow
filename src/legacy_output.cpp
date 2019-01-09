@@ -58,7 +58,6 @@ LegacyOutput::LegacyOutput(GstBaseSink *gobj) :
 
 Glib::RefPtr<LegacyOutput>LegacyOutput::create(
 	shared_ptr<sigrok::OutputFormat> libsigrok_output_format,
-	shared_ptr<sigrok::Device> libsigrok_device,
 	map<string, Glib::VariantBase> options)
 {
 	auto element = Gst::ElementFactory::create_element("sigrok_legacy_output");
@@ -66,7 +65,8 @@ Glib::RefPtr<LegacyOutput>LegacyOutput::create(
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto output = Glib::RefPtr<LegacyOutput>::cast_static(element);
 	output->libsigrok_output_format_ = libsigrok_output_format;
-	output->libsigrok_device_ = libsigrok_device;
+	auto context = libsigrok_output_format->parent();
+	output->libsigrok_device_ = context->create_user_device("Vendor", "Model", "Version");
 	output->options_ = options;
 
 	return output;

@@ -155,7 +155,6 @@ public:
 	/* Create from libsigrok output object. */
 	static Glib::RefPtr<LegacyOutput> create(
 		shared_ptr<sigrok::OutputFormat> libsigrok_output_format,
-		shared_ptr<sigrok::Device> libsigrok_device,
 		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
 	/* Override start. */
