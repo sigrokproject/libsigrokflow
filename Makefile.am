@@ -28,7 +28,8 @@ AM_CXXFLAGS = $(SRF_WXXFLAGS) $(LIBSIGROKFLOW_CFLAGS)
 lib_LTLIBRARIES = libsigrokflow.la
 
 libsigrokflow_la_SOURCES = \
-	src/main.cpp
+	src/main.cpp \
+	src/init.cpp
 
 libsigrokflow_la_LIBADD = $(LIBSIGROKFLOW_LIBS)
 libsigrokflow_la_LDFLAGS = -version-info $(SRF_LIB_VERSION) -no-undefined

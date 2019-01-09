@@ -28,52 +28,6 @@ namespace Srf
 using namespace std;
 using namespace std::placeholders;
 
-static bool srf_initialized_ = false;
-
-void init()
-{
-	if (srf_initialized_)
-		throw runtime_error("libsigrokflow is already initialized");
-
-	if (!Gst::is_initialized())
-		throw runtime_error("Gst::init() has not run yet");
-
-#ifdef HAVE_LIBSIGROKCXX
-	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
-			"sigrok_legacy_capture_device",
-			"Wrapper for capture devices using legacy libsigrok APIs",
-			sigc::ptr_fun(&LegacyCaptureDevice::register_element),
-			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
-	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
-			"sigrok_legacy_input",
-			"Wrapper for inputs using legacy libsigrok APIs",
-			sigc::ptr_fun(&LegacyInput::register_element),
-			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
-	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
-			"sigrok_legacy_output",
-			"Wrapper for outputs using legacy libsigrok APIs",
-			sigc::ptr_fun(&LegacyOutput::register_element),
-			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
-#endif
-#ifdef HAVE_LIBSIGROKDECODE
-	Gst::Plugin::register_static(GST_VERSION_MAJOR, GST_VERSION_MINOR,
-			"sigrok_legacy_decoder",
-			"Wrapper for protocol decoders using legacy libsigrokdecode APIs",
-			sigc::ptr_fun(&LegacyDecoder::register_element),
-			"0.01", "GPL", "sigrok", "libsigrokflow", "http://sigrok.org");
-#endif
-
-	srf_initialized_ = true;
-}
-
-void deinit()
-{
-	if (!srf_initialized_)
-		throw runtime_error("libsigrokflow is not initialized");
-
-	srf_initialized_ = false;
-}
-
 Sink::Sink(GstBaseSink *gobj) :
 	Gst::BaseSink(gobj)
 {
