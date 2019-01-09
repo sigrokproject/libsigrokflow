@@ -29,7 +29,8 @@ lib_LTLIBRARIES = libsigrokflow.la
 
 libsigrokflow_la_SOURCES = \
 	src/main.cpp \
-	src/init.cpp
+	src/init.cpp \
+	src/legacy_capture_device.cpp
 
 libsigrokflow_la_LIBADD = $(LIBSIGROKFLOW_LIBS)
 libsigrokflow_la_LDFLAGS = -version-info $(SRF_LIB_VERSION) -no-undefined
