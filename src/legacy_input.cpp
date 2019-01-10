@@ -63,6 +63,7 @@ LegacyInput::LegacyInput(GstElement *gobj) :
 	add_pad(sink_pad_ = Gst::Pad::create(get_pad_template("sink"), "sink"));
 	add_pad(src_pad_ = Gst::Pad::create(get_pad_template("src"), "src"));
 	sink_pad_->set_chain_function(sigc::mem_fun(*this, &LegacyInput::chain));
+	sink_pad_->set_event_function(sigc::mem_fun(*this, &LegacyInput::event));
 }
 
 Glib::RefPtr<LegacyInput> LegacyInput::create(
@@ -74,21 +75,8 @@ Glib::RefPtr<LegacyInput> LegacyInput::create(
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto input = Glib::RefPtr<LegacyInput>::cast_static(element);
 	input->libsigrok_input_format_ = libsigrok_input_format;
-	input->options_ = options;
-
+	input->libsigrok_input_ = libsigrok_input_format->create_input(options);
 	return input;
-}
-
-bool LegacyInput::start_vfunc()
-{
-	libsigrok_input_ = libsigrok_input_format_->create_input(options_);
-	auto context = libsigrok_input_format_->parent();
-	session_ = context->create_session();
-	session_->add_device(libsigrok_input_->device());
-	session_->add_datafeed_callback(bind(&LegacyInput::datafeed_callback, this, _1, _2));
-	session_->start();
-
-	return true;
 }
 
 void LegacyInput::datafeed_callback(
@@ -126,14 +114,26 @@ Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &,
 	Gst::MapInfo info;
 	buf->map(info, Gst::MAP_READ);
 	libsigrok_input_->send(info.get_data(), info.get_size());
+	auto device = libsigrok_input_->device();
+	if (!session_ && device) {
+		auto context = libsigrok_input_format_->parent();
+		session_ = context->create_session();
+		session_->add_device(device);
+		session_->add_datafeed_callback(bind(&LegacyInput::datafeed_callback, this, _1, _2));
+	}
 	buf->unmap(info);
 
 	return Gst::FLOW_OK;
 }
 
-bool LegacyInput::stop_vfunc()
+bool LegacyInput::event(const Glib::RefPtr<Gst::Pad>&pad, Glib::RefPtr<Gst::Event>&event)
 {
-	libsigrok_input_->end();
+	(void)pad;
+
+	if (event->get_event_type() == Gst::EVENT_EOS) {
+		libsigrok_input_->end();
+		session_->stop();
+	}
 
 	return true;
 }

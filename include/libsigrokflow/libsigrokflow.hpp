@@ -117,15 +117,13 @@ public:
 		shared_ptr<sigrok::InputFormat> format,
 		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
-	/* Start function (not an override). */
-	bool start_vfunc();
-
 	/* Chain function (not an override). */
 	Gst::FlowReturn chain(const Glib::RefPtr<Gst::Pad> &pad,
 			const Glib::RefPtr<Gst::Buffer> &buf);
 
-	/* Stop function (not an override). */
-	bool stop_vfunc();
+	/* Event function (not an override). */
+	bool event(const Glib::RefPtr<Gst::Pad> &pad,
+			Glib::RefPtr<Gst::Event> &event);
 
 	/* Gst class init. */
 	static void class_init(Gst::ElementClass<LegacyInput> *klass);
