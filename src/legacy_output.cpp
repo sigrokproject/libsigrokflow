@@ -67,6 +67,11 @@ Glib::RefPtr<LegacyOutput>LegacyOutput::create(
 	output->libsigrok_output_format_ = libsigrok_output_format;
 	auto context = libsigrok_output_format->parent();
 	output->libsigrok_device_ = context->create_user_device("Vendor", "Model", "Version");
+	for (int i = 0; i < 8; ++i) {
+		gchar *name = g_strdup_printf("D%d", i);
+		output->libsigrok_device_->add_channel(i, sigrok::ChannelType::LOGIC, name);
+		g_free(name);
+	}
 	output->options_ = options;
 
 	return output;

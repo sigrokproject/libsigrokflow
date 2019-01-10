@@ -175,7 +175,7 @@ public:
 
 private:
 	shared_ptr<sigrok::OutputFormat> libsigrok_output_format_;
-	shared_ptr<sigrok::Device> libsigrok_device_;
+	shared_ptr<sigrok::UserDevice> libsigrok_device_;
 	shared_ptr<sigrok::Output> libsigrok_output_;
 	map<string, Glib::VariantBase> options_;
 };
