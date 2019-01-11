@@ -20,6 +20,12 @@
 
 #include <config.h>
 #include <libsigrokflow/legacy_input.hpp>
+#include <functional>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <utility>
 #include <gstreamermm/private/element_p.h>
 
 namespace Srf

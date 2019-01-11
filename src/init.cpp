@@ -25,6 +25,7 @@
 #include <libsigrokflow/legacy_input.hpp>
 #include <libsigrokflow/legacy_output.hpp>
 #include <libsigrokflow/legacy_decoder.hpp>
+#include <stdexcept>
 
 namespace Srf
 {

@@ -19,8 +19,13 @@
  */
 
 #include <config.h>
-#include <iostream>
 #include <libsigrokflow/legacy_output.hpp>
+#include <glib.h>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <stdexcept>
+#include <string>
 #include <gstreamermm/private/basesink_p.h>
 
 namespace Srf
