@@ -18,44 +18,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
-#define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
+#ifndef LIBSIGROKFLOW_LEGACY_OUTPUT_HPP
+#define LIBSIGROKFLOW_LEGACY_OUTPUT_HPP
 
 /* Temporary workaround, will be dropped later. */
 #define HAVE_LIBSIGROKCXX 1
-#define HAVE_LIBSIGROKDECODE 1
 
 #include <gstreamermm.h>
-#include <gstreamermm/private/element_p.h>
-#include <gstreamermm/private/basesink_p.h>
 #ifdef HAVE_LIBSIGROKCXX
 #include <libsigrokcxx/libsigrokcxx.hpp>
 #endif
-#ifdef HAVE_LIBSIGROKDECODE
-#include <libsigrokdecode/libsigrokdecode.h>
-#endif
-
 #include <libsigrokflow/main.hpp>
-#include <libsigrokflow/init.hpp>
-#include <libsigrokflow/legacy_capture_device.hpp>
-#include <libsigrokflow/legacy_input.hpp>
-#include <libsigrokflow/legacy_output.hpp>
 
 namespace Srf
 {
 
 using namespace std;
 
-#ifdef HAVE_LIBSIGROKDECODE
-class LegacyDecoder :
+#ifdef HAVE_LIBSIGROKCXX
+class LegacyOutput :
 	public Sink
 {
 public:
-	static Glib::RefPtr<LegacyDecoder> create(
-		struct srd_session *libsigrokdecode_session, uint64_t unitsize);
-
-	/* Retrieve libsigrokdecode session. */
-	struct srd_session *libsigrokdecode_session();
+	/* Create from libsigrok output object. */
+	static Glib::RefPtr<LegacyOutput> create(
+		shared_ptr<sigrok::OutputFormat> libsigrok_output_format,
+		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
 
 	/* Override start. */
 	bool start_vfunc() override;
@@ -67,18 +55,19 @@ public:
 	bool stop_vfunc() override;
 
 	/* Gst class init. */
-	static void class_init(Gst::ElementClass<LegacyDecoder> *klass);
+	static void class_init(Gst::ElementClass<LegacyOutput> *klass);
 
 	/* Register class with plugin. */
 	static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
 
 	/* Constructor used by element factory. */
-	explicit LegacyDecoder(GstBaseSink *gobj);
+	explicit LegacyOutput(GstBaseSink *gobj);
 
 private:
-	struct srd_session *session_;
-	uint64_t abs_ss_;
-	uint64_t unitsite_;
+	shared_ptr<sigrok::OutputFormat> libsigrok_output_format_;
+	shared_ptr<sigrok::UserDevice> libsigrok_device_;
+	shared_ptr<sigrok::Output> libsigrok_output_;
+	map<string, Glib::VariantBase> options_;
 };
 #endif
 

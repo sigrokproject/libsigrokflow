@@ -44,7 +44,8 @@ library_include_HEADERS = \
 	include/libsigrokflow/main.hpp \
 	include/libsigrokflow/init.hpp \
 	include/libsigrokflow/legacy_capture_device.hpp \
-	include/libsigrokflow/legacy_input.hpp
+	include/libsigrokflow/legacy_input.hpp \
+	include/libsigrokflow/legacy_output.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libsigrokflow.pc

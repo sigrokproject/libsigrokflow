@@ -20,7 +20,8 @@
 
 #include <config.h>
 #include <iostream>
-#include <libsigrokflow/libsigrokflow.hpp>
+#include <libsigrokflow/legacy_output.hpp>
+#include <gstreamermm/private/basesink_p.h>
 
 namespace Srf
 {
