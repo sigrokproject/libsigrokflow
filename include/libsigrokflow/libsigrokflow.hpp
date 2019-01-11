@@ -38,6 +38,7 @@
 #include <libsigrokflow/main.hpp>
 #include <libsigrokflow/init.hpp>
 #include <libsigrokflow/legacy_capture_device.hpp>
+#include <libsigrokflow/legacy_input.hpp>
 
 namespace Srf
 {
@@ -45,44 +46,6 @@ namespace Srf
 using namespace std;
 
 #ifdef HAVE_LIBSIGROKCXX
-class LegacyInput :
-	public Gst::Element
-{
-public:
-	/* Create from libsigrok input. */
-	static Glib::RefPtr<LegacyInput> create(
-		shared_ptr<sigrok::InputFormat> format,
-		map<string, Glib::VariantBase> options = map<string, Glib::VariantBase>());
-
-	/* Chain function (not an override). */
-	Gst::FlowReturn chain(const Glib::RefPtr<Gst::Pad> &pad,
-			const Glib::RefPtr<Gst::Buffer> &buf);
-
-	/* Event function (not an override). */
-	bool event(const Glib::RefPtr<Gst::Pad> &pad,
-			Glib::RefPtr<Gst::Event> &event);
-
-	/* Gst class init. */
-	static void class_init(Gst::ElementClass<LegacyInput> *klass);
-
-	/* Register class with plugin. */
-	static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
-
-	/* Constructor used by element factory. */
-	explicit LegacyInput(GstElement *gobj);
-
-private:
-	shared_ptr<sigrok::InputFormat> libsigrok_input_format_;
-	shared_ptr<sigrok::Input> libsigrok_input_;
-	shared_ptr<sigrok::Session> session_;
-	map<string, Glib::VariantBase> options_;
-	Glib::RefPtr<Gst::Pad> sink_pad_;
-	Glib::RefPtr<Gst::Pad> src_pad_;
-
-	void datafeed_callback(shared_ptr<sigrok::Device> device,
-			shared_ptr<sigrok::Packet> packet);
-};
-
 class LegacyOutput :
 	public Sink
 {
