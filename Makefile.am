@@ -41,6 +41,7 @@ libsigrokflow_la_LDFLAGS = -version-info $(SRF_LIB_VERSION) -no-undefined
 library_includedir = $(includedir)/libsigrokflow
 library_include_HEADERS = \
 	include/libsigrokflow/libsigrokflow.hpp \
+	include/libsigrokflow/main.hpp \
 	include/libsigrokflow/init.hpp
 
 pkgconfigdir = $(libdir)/pkgconfig

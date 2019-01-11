@@ -18,26 +18,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <config.h>
+#ifndef LIBSIGROKFLOW_MAIN_HPP
+#define LIBSIGROKFLOW_MAIN_HPP
+
 #include <gstreamermm.h>
-#include <libsigrokflow/main.hpp>
 
 namespace Srf
 {
 
-Sink::Sink(GstBaseSink *gobj) :
-	Gst::BaseSink(gobj)
+class Block
 {
-}
+	/* Config API etc. goes here. */
+};
 
-Device::Device(GstElement *gobj) :
-	Gst::Element(gobj)
+class Sink :
+	public Gst::BaseSink
 {
-}
+protected:
+	explicit Sink(GstBaseSink *gobj);
+};
 
-CaptureDevice::CaptureDevice(GstElement *gobj) :
-	Device(gobj)
+class Device :
+	public Gst::Element
 {
-}
+	/* Operations specific to hardware devices go here. */
+protected:
+	explicit Device(GstElement *gobj);
+};
+
+class CaptureDevice :
+	public Device
+{
+	/* Operations specific to capture (source) devices go here. */
+protected:
+	explicit CaptureDevice(GstElement *gobj);
+};
 
 }
+#endif

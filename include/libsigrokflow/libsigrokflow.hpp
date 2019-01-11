@@ -35,40 +35,13 @@
 #include <libsigrokdecode/libsigrokdecode.h>
 #endif
 
+#include <libsigrokflow/main.hpp>
 #include <libsigrokflow/init.hpp>
 
 namespace Srf
 {
 
 using namespace std;
-
-class Block
-{
-	/* Config API etc. goes here. */
-};
-
-class Sink :
-	public Gst::BaseSink
-{
-protected:
-	explicit Sink(GstBaseSink *gobj);
-};
-
-class Device :
-	public Gst::Element
-{
-	/* Operations specific to hardware devices go here. */
-protected:
-	explicit Device(GstElement *gobj);
-};
-
-class CaptureDevice :
-	public Device
-{
-	/* Operations specific to capture (source) devices go here. */
-protected:
-	explicit CaptureDevice(GstElement *gobj);
-};
 
 #ifdef HAVE_LIBSIGROKCXX
 class LegacyCaptureDevice :
