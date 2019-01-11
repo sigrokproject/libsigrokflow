@@ -21,66 +21,11 @@
 #ifndef LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 #define LIBSIGROKFLOW_LIBSIGROKFLOW_HPP
 
-/* Temporary workaround, will be dropped later. */
-#define HAVE_LIBSIGROKCXX 1
-#define HAVE_LIBSIGROKDECODE 1
-
-#include <gstreamermm.h>
-#include <gstreamermm/private/element_p.h>
-#include <gstreamermm/private/basesink_p.h>
-#ifdef HAVE_LIBSIGROKCXX
-#include <libsigrokcxx/libsigrokcxx.hpp>
-#endif
-#ifdef HAVE_LIBSIGROKDECODE
-#include <libsigrokdecode/libsigrokdecode.h>
-#endif
-
 #include <libsigrokflow/main.hpp>
 #include <libsigrokflow/init.hpp>
 #include <libsigrokflow/legacy_capture_device.hpp>
 #include <libsigrokflow/legacy_input.hpp>
 #include <libsigrokflow/legacy_output.hpp>
+#include <libsigrokflow/legacy_decoder.hpp>
 
-namespace Srf
-{
-
-using namespace std;
-
-#ifdef HAVE_LIBSIGROKDECODE
-class LegacyDecoder :
-	public Sink
-{
-public:
-	static Glib::RefPtr<LegacyDecoder> create(
-		struct srd_session *libsigrokdecode_session, uint64_t unitsize);
-
-	/* Retrieve libsigrokdecode session. */
-	struct srd_session *libsigrokdecode_session();
-
-	/* Override start. */
-	bool start_vfunc() override;
-
-	/* Override render. */
-	Gst::FlowReturn render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer) override;
-
-	/* Override stop. */
-	bool stop_vfunc() override;
-
-	/* Gst class init. */
-	static void class_init(Gst::ElementClass<LegacyDecoder> *klass);
-
-	/* Register class with plugin. */
-	static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
-
-	/* Constructor used by element factory. */
-	explicit LegacyDecoder(GstBaseSink *gobj);
-
-private:
-	struct srd_session *session_;
-	uint64_t abs_ss_;
-	uint64_t unitsite_;
-};
-#endif
-
-}
 #endif

@@ -19,7 +19,8 @@
  */
 
 #include <config.h>
-#include <libsigrokflow/libsigrokflow.hpp>
+#include <libsigrokflow/legacy_decoder.hpp>
+#include <gstreamermm/private/basesink_p.h>
 
 namespace Srf
 {
