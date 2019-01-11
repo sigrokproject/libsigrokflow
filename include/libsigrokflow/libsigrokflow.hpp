@@ -37,6 +37,7 @@
 
 #include <libsigrokflow/main.hpp>
 #include <libsigrokflow/init.hpp>
+#include <libsigrokflow/legacy_capture_device.hpp>
 
 namespace Srf
 {
@@ -44,41 +45,6 @@ namespace Srf
 using namespace std;
 
 #ifdef HAVE_LIBSIGROKCXX
-class LegacyCaptureDevice :
-	public CaptureDevice
-{
-public:
-	/* Create from libsigrok device object. */
-	static Glib::RefPtr<LegacyCaptureDevice> create(
-		shared_ptr<sigrok::HardwareDevice> libsigrok_device);
-
-	/* Retrieve libsigrok device object. */
-	shared_ptr<sigrok::HardwareDevice> libsigrok_device();
-
-	/* Override state change. */
-	Gst::StateChangeReturn change_state_vfunc(Gst::StateChange transition) override;
-
-	/* Gst class init. */
-	static void class_init(Gst::ElementClass<LegacyCaptureDevice> *klass);
-
-	/* Register class with plugin. */
-	static bool register_element(Glib::RefPtr<Gst::Plugin> plugin);
-
-	/* Constructor used by element factory. */
-	explicit LegacyCaptureDevice(GstElement *gobj);
-
-private:
-	shared_ptr<sigrok::HardwareDevice> libsigrok_device_;
-	Glib::RefPtr<Gst::Pad> src_pad_;
-	Glib::Threads::RecMutex mutex_;
-	Glib::RefPtr<Gst::Task> task_;
-	shared_ptr<sigrok::Session> session_;
-
-	void datafeed_callback(shared_ptr<sigrok::Device> device,
-			shared_ptr<sigrok::Packet> packet);
-	void run();
-};
-
 class LegacyInput :
 	public Gst::Element
 {

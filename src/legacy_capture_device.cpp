@@ -19,7 +19,8 @@
  */
 
 #include <config.h>
-#include <libsigrokflow/libsigrokflow.hpp>
+#include <libsigrokflow/legacy_capture_device.hpp>
+#include <gstreamermm/private/element_p.h>
 
 namespace Srf
 {
