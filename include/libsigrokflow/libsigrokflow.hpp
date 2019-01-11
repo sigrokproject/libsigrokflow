@@ -35,14 +35,12 @@
 #include <libsigrokdecode/libsigrokdecode.h>
 #endif
 
+#include <libsigrokflow/init.hpp>
+
 namespace Srf
 {
 
 using namespace std;
-
-void init();
-
-void deinit();
 
 class Block
 {
