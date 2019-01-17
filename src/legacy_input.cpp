@@ -121,9 +121,11 @@ void LegacyInput::datafeed_callback(
 	}
 }
 
-Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &,
+Gst::FlowReturn LegacyInput::chain(const Glib::RefPtr<Gst::Pad> &pad,
 	const Glib::RefPtr<Gst::Buffer> &buf)
 {
+	(void)pad;
+
 	Gst::MapInfo info;
 	buf->map(info, Gst::MAP_READ);
 	libsigrok_input_->send(info.get_data(), info.get_size());
