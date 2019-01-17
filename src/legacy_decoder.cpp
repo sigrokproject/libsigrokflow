@@ -65,7 +65,7 @@ Glib::RefPtr<LegacyDecoder>LegacyDecoder::create(
 		throw runtime_error("Failed to create element - plugin not registered?");
 	auto decoder = Glib::RefPtr<LegacyDecoder>::cast_static(element);
 	decoder->session_ = libsigrokdecode_session;
-	decoder->unitsite_ = unitsize;
+	decoder->unitsize_ = unitsize;
 
 	return decoder;
 }
@@ -79,9 +79,9 @@ Gst::FlowReturn LegacyDecoder::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buf
 {
 	Gst::MapInfo info;
 	buffer->map(info, Gst::MAP_READ);
-	uint64_t num_samples = info.get_size() / unitsite_;
+	uint64_t num_samples = info.get_size() / unitsize_;
 	srd_session_send(session_, abs_ss_, abs_ss_ + num_samples,
-		info.get_data(), info.get_size(), unitsite_);
+		info.get_data(), info.get_size(), unitsize_);
 	abs_ss_ += num_samples;
 	buffer->unmap(info);
 

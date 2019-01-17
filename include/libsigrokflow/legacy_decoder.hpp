@@ -67,7 +67,7 @@ public:
 private:
 	struct srd_session *session_;
 	uint64_t abs_ss_;
-	uint64_t unitsite_;
+	uint64_t unitsize_;
 };
 #endif
 
