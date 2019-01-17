@@ -31,8 +31,14 @@
 namespace Srf
 {
 
-using namespace std;
-using namespace std::placeholders;
+using std::map;
+using std::move;
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::runtime_error;
+using std::shared_ptr;
+using std::static_pointer_cast;
+using std::string;
 
 #ifdef HAVE_LIBSIGROKCXX
 void LegacyInput::class_init(Gst::ElementClass<LegacyInput> *klass)

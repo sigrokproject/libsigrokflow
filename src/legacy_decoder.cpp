@@ -26,7 +26,7 @@
 namespace Srf
 {
 
-using namespace std;
+using std::runtime_error;
 
 #ifdef HAVE_LIBSIGROKDECODE
 void LegacyDecoder::class_init(Gst::ElementClass<LegacyDecoder> *klass)

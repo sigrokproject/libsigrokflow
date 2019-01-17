@@ -29,8 +29,12 @@
 namespace Srf
 {
 
-using namespace std;
-using namespace std::placeholders;
+using std::move;
+using std::placeholders::_1;
+using std::placeholders::_2;
+using std::runtime_error;
+using std::shared_ptr;
+using std::static_pointer_cast;
 
 #ifdef HAVE_LIBSIGROKCXX
 void LegacyCaptureDevice::class_init(Gst::ElementClass<LegacyCaptureDevice> *klass)

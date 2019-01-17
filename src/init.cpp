@@ -29,7 +29,7 @@
 
 namespace Srf
 {
-using namespace std;
+using std::runtime_error;
 
 static bool srf_initialized_ = false;
 

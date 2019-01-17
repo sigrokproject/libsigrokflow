@@ -33,7 +33,7 @@
 namespace Srf
 {
 
-using namespace std;
+using std::shared_ptr;
 
 #ifdef HAVE_LIBSIGROKCXX
 class LegacyCaptureDevice :

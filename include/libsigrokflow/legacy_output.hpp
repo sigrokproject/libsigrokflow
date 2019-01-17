@@ -33,7 +33,9 @@
 namespace Srf
 {
 
-using namespace std;
+using std::map;
+using std::shared_ptr;
+using std::string;
 
 #ifdef HAVE_LIBSIGROKCXX
 class LegacyOutput :

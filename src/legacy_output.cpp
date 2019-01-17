@@ -31,7 +31,11 @@
 namespace Srf
 {
 
-using namespace std;
+using std::cout;
+using std::map;
+using std::runtime_error;
+using std::shared_ptr;
+using std::string;
 
 #ifdef HAVE_LIBSIGROKCXX
 void LegacyOutput::class_init(Gst::ElementClass<LegacyOutput> *klass)
