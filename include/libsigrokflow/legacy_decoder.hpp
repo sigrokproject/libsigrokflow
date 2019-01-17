@@ -46,6 +46,9 @@ public:
 	/* Retrieve libsigrokdecode session. */
 	struct srd_session *libsigrokdecode_session();
 
+	/* Retrieve the unitsize. */
+	uint64_t unitsize();
+
 	/* Override start. */
 	bool start_vfunc() override;
 

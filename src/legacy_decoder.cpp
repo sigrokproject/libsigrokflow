@@ -75,6 +75,11 @@ struct srd_session *LegacyDecoder::libsigrokdecode_session()
 	return session_;
 }
 
+uint64_t LegacyDecoder::unitsize()
+{
+	return unitsize_;
+}
+
 Gst::FlowReturn LegacyDecoder::render_vfunc(const Glib::RefPtr<Gst::Buffer> &buffer)
 {
 	Gst::MapInfo info;
