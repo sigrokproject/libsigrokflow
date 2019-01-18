@@ -57,7 +57,8 @@ check_PROGRAMS = tests/main
 tests_main_SOURCES = \
 	include/libsigrokflow/libsigrokflow.hpp \
 	tests/main.cpp \
-	tests/init.cpp
+	tests/init.cpp \
+	tests/legacy_decoder.cpp
 
 tests_main_LDADD = libsigrokflow.la $(LIBSIGROKFLOW_LIBS)
 
